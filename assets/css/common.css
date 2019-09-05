@@ -1,6 +1,6 @@
 /*default settings*/
 html {height: 100%;}
-body, html {overflow: hidden;width:100%; min-height:100%; color:#555;font-family: "SFProDisplay,Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;}
+body, html {overflow: hidden;width:100%; min-height:100%; color:#555;font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;}
 body.overflow-hidden { overflow: hidden; }
 body.full { height: 100%; }
 *{box-sizing:border-box; margin:0; padding:0;}

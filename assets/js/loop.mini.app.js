@@ -24,6 +24,10 @@
         bridge.callHandler('openUrl', { url: url });
     }
 
+    LOOP.prototype.openUrlBySafari = function (url) {
+        bridge.callHandler('openUrlBySafari', { url: url });
+    }
+    
     LOOP.prototype.getVersion = function (callback) {
         versionTimeout = setTimeout(function () {
             let obj = {
@@ -32,7 +36,7 @@
             callback(JSON.stringify(obj))
         }, 1000)
         bridge.callHandler('getVersion', 'getVersion', function responseCallback(responseData) {
-            if(versionTimeout) {
+            if (versionTimeout) {
                 clearTimeout(versionTimeout);
             }
             callback(responseData);
