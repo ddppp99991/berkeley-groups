@@ -61,7 +61,8 @@
           this.noScale = opt.noScale;
           this.noAngel = opt.noAngel;
           this.opacity = 1;
-          this.speed = opt.speed || 0.0027;
+        //   this.speed = opt.speed || 0.0027;
+          this.speed = 0.01;
           this.bezierPoint = opt.bezierPoint;
           this.bezierDis = 0;
           this.onFadeOut = opt.onFadeOut;
@@ -160,7 +161,8 @@
         } else {
             _opacity = 1;
         }
-        return _opacity;
+        // return _opacity;
+        return 1;
     }
 
     /**

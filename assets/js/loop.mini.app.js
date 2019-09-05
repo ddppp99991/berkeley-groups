@@ -1,42 +1,53 @@
 !(function (win, doc) {
     var bridge;
+    var versionTimeout;
+
     function LOOP() {
-        
+
     }
     // ready
     LOOP.prototype.ready = function (callback) {
-        setupWebViewJavascriptBridge(function (_bridge){
+        setupWebViewJavascriptBridge(function (_bridge) {
             bridge = _bridge;
             callback('success');
         })
-    } 
+    }
 
     LOOP.prototype.getUserInfo = function (params) {    // 省略代码，举个例子，直接返回参数
-        console.log('login'+params)
-        bridge.callHandler('login', { appName: params.param.appName,appId: params.param.appId}, function responseCallback(responseData) {
+        console.log('login' + params)
+        bridge.callHandler('login', { appName: params.param.appName, appId: params.param.appId }, function responseCallback(responseData) {
             params.success(responseData);
         });
-    }  
+    }
 
     LOOP.prototype.openUrl = function (url) {
         bridge.callHandler('openUrl', { url: url });
-    }  
+    }
 
     LOOP.prototype.getVersion = function (callback) {
-        bridge.callHandler('getVersion','getVersion',function responseCallback(responseData) {
+        versionTimeout = setTimeout(function () {
+            let obj = {
+                code: 0
+            }
+            callback(JSON.stringify(obj))
+        }, 1000)
+        bridge.callHandler('getVersion', 'getVersion', function responseCallback(responseData) {
+            if(versionTimeout) {
+                clearTimeout(versionTimeout);
+            }
             callback(responseData);
         });
-    }  
+    }
 
     LOOP.prototype.selectMyCreatedGroup = function (callback) {
-        bridge.callHandler('selectMyCreatedGroup','selectMyCreatedGroup',function responseCallback(responseData) {
+        bridge.callHandler('selectMyCreatedGroup', 'selectMyCreatedGroup', function responseCallback(responseData) {
             callback(responseData);
         });
-    }  
+    }
 
-    LOOP.prototype.setScrollEnabled = function (type,url) {
-        bridge.callHandler('setScrollEnabled',type, { url: url });
-    }  
+    LOOP.prototype.setScrollEnabled = function (type, url) {
+        bridge.callHandler('setScrollEnabled', type, { url: url });
+    }
 
     function setupWebViewJavascriptBridge(callback) {
         // if (this.window.WebViewJavascriptBridge) { return callback(this.window.WebViewJavascriptBridge); }else {
