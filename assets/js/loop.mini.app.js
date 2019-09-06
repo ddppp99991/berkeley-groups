@@ -1,7 +1,7 @@
 !(function (win, doc) {
     var bridge;
     var versionTimeout;
-
+    
     function LOOP() {
 
     }
@@ -27,7 +27,7 @@
     LOOP.prototype.openUrlBySafari = function (url) {
         bridge.callHandler('openUrlBySafari', { url: url });
     }
-    
+
     LOOP.prototype.getVersion = function (callback) {
         versionTimeout = setTimeout(function () {
             let obj = {
