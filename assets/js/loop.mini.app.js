@@ -34,7 +34,7 @@
                 code: 0
             }
             callback(JSON.stringify(obj))
-        }, 1000)
+        }, 600)
         bridge.callHandler('getVersion', 'getVersion', function responseCallback(responseData) {
             if (versionTimeout) {
                 clearTimeout(versionTimeout);
