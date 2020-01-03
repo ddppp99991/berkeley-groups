@@ -53,6 +53,13 @@
         bridge.callHandler('setScrollEnabled', type, { url: url });
     }
 
+    // 直接进群并进入对应的会话
+    LOOP.prototype.joinGroup = function (id, callback) {   
+        bridge.callHandler('joinGroup', { id: id}, function responseCallback(responseData) {
+            callback(responseData);
+        });
+    }
+
     function setupWebViewJavascriptBridge(callback) {
         // if (this.window.WebViewJavascriptBridge) { return callback(this.window.WebViewJavascriptBridge); }else {
         //     setTimeout(function () { setupWebViewJavascriptBridge(callback) }, 100)

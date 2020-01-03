@@ -1,6 +1,7 @@
 /*default settings*/
 html {height: 100%;}
-body, html {overflow: hidden;width:100%; min-height:100%; color:#555;font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;}
+/* font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif; */
+body, html {overflow: hidden;width:100%; min-height:100%; color:#555;font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;/*font-family: SFProDisplay-Semibold,SFProDisplay;*/}
 body.overflow-hidden { overflow: hidden; }
 body.full { height: 100%; }
 *{box-sizing:border-box; margin:0; padding:0;}
@@ -11,7 +12,7 @@ ol,dl,dt,dd,ul,li{ margin:0; padding:0;}
 sup{vertical-align:text-top;}
 sub{vertical-align:text-bottom;}
 .relative{position:relative;}
-input, textarea, select{font-family:inherit; font-size:inherit; font-weight:inherit; -webkit-appearance: none;/*去掉移动端阴影*/}
+input, textarea, select{font-size:inherit; font-weight:inherit; -webkit-appearance: none;/*去掉移动端阴影*/}
 textarea {resize: none;}
 button{cursor: pointer;background: none;border: 0;}
 img{border:0; display:block;}
