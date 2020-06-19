@@ -662,21 +662,22 @@ var AppComponent = /** @class */ (function () {
         this.device = deviceInfo.os;
     }
     AppComponent.prototype.ngOnInit = function () {
+        var _this = this;
         //电脑端调试
-        sessionStorage.setItem("classRoomUserId", '05ed9603e1f6edab7fdb06fadb61865c0671150574cf252267eabbcfff2f8e05'); //guoli
-        // sessionStorage.setItem("classRoomUserId", '05ed9603e1f6edab7fdb06fadb61865c0671150574cf252267eabbcfff2f8e05');//dp
-        this.status = 2;
-        var payload = {
-            loopUid: '05ed9603e1f6edab7fdb06fadb61865c0671150574cf252267eabbcfff2f8e05',
-            loopUserName: 'Peng Du'
-        };
-        this.authorize(payload);
-        // setTimeout(() => {
-        //     loop.ready((status) => {
-        //         loop.setScrollEnabled(0);
-        //         this.getuser();
-        //     })
-        // }, 500);
+        // sessionStorage.setItem("classRoomUserId", '0bf877a6fcc03a1cd011fbc78343a1af8057aea0cde0c59b6c81f6d802774f8f');//guoli
+        // // sessionStorage.setItem("classRoomUserId", '05ed9603e1f6edab7fdb06fadb61865c0671150574cf252267eabbcfff2f8e05');//dp
+        // this.status = 2;
+        // let payload = {
+        //     loopUid: '0bf877a6fcc03a1cd011fbc78343a1af8057aea0cde0c59b6c81f6d802774f8f',
+        //     loopUserName: 'Peng Du'
+        // }
+        // this.authorize(payload);
+        setTimeout(function () {
+            loop.ready(function (status) {
+                loop.setScrollEnabled(0);
+                _this.getuser();
+            });
+        }, 500);
     };
     AppComponent.prototype.getuser = function () {
         var _this = this;
@@ -1230,8 +1231,8 @@ var __metadata = (undefined && undefined.__metadata) || function (k, v) {
 
 
 
-var BSAE_URL = "/";
-// const BSAE_URL = "/api/"
+// const BSAE_URL = "/"
+var BSAE_URL = "/api/";
 var AuthService = /** @class */ (function () {
     function AuthService(http) {
         this.http = http;
