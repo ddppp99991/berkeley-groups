@@ -662,13 +662,15 @@ var AppComponent = /** @class */ (function () {
         this.device = deviceInfo.os;
     }
     AppComponent.prototype.ngOnInit = function () {
-        var _this = this;
         //电脑端调试
         // sessionStorage.setItem("classRoomUserId", '0bf877a6fcc03a1cd011fbc78343a1af8057aea0cde0c59b6c81f6d802774f8f');//guoli
-        // // sessionStorage.setItem("classRoomUserId", '05ed9603e1f6edab7fdb06fadb61865c0671150574cf252267eabbcfff2f8e05');//dp
+        // sessionStorage.setItem("classRoomUserId", '05ed9603e1f6edab7fdb06fadb61865c0671150574cf252267eabbcfff2f8e05');//dp
+        // sessionStorage.setItem("loopUserName", 'Peng Du');//dp
         // this.status = 2;
+        // this.checkUser();
+        var _this = this;
         // let payload = {
-        //     loopUid: '0bf877a6fcc03a1cd011fbc78343a1af8057aea0cde0c59b6c81f6d802774f8f',
+        //     loopUid: '05ed9603e1f6edab7fdb06fadb61865c0671150574cf252267eabbcfff2f8e05',
         //     loopUserName: 'Peng Du'
         // }
         // this.authorize(payload);
@@ -709,12 +711,13 @@ var AppComponent = /** @class */ (function () {
                     var loopUserId = id;
                     var loopUserName = _resp.data.name;
                     sessionStorage.setItem("classRoomUserId", id);
+                    sessionStorage.setItem("loopUserName", loopUserName); //dp
                     that.auth.userInfo = _resp.data;
                     var payload = {
                         loopUid: loopUserId,
                         loopUserName: loopUserName
                     };
-                    _this.authorize(payload);
+                    _this.checkUser();
                     _this._ngZone.run(function () { });
                     _this.cd.detectChanges();
                     //判断是否已经注册
@@ -837,6 +840,23 @@ var AppComponent = /** @class */ (function () {
         setTimeout(function () {
             _this.cache.showMySchool = false;
         }, 250);
+    };
+    AppComponent.prototype.checkUser = function () {
+        var _this = this;
+        this.auth.sendPost('user/check', {}).subscribe(function (resp) {
+            if (resp && resp.hasOwnProperty('status') && resp.status == '200') {
+                var body = resp.body;
+                if (body.code == 2000) {
+                    _this.cache.userInfo = body.payload;
+                    _this._ngZone.run(function () { });
+                }
+                else if (body && body.code == '3001') {
+                    _this.route.navigateByUrl('search-school');
+                    // this.cache.chooseSchool = true;
+                    _this._ngZone.run(function () { });
+                }
+            }
+        });
     };
     AppComponent = __decorate([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"])({
@@ -1328,6 +1348,7 @@ var CacheService = /** @class */ (function () {
     function CacheService(http, auth) {
         this.http = http;
         this.auth = auth;
+        this.userInfo = {};
         this.currentNavigate = 'interests';
         this.searchStr = '';
         this.showGroups = false;
@@ -1340,6 +1361,7 @@ var CacheService = /** @class */ (function () {
         this.showMySchool = false;
         this._showMySchool = '';
         this.courseToAdd = {};
+        this.chooseSchool = false;
     }
     CacheService.prototype.getCachePopularClasses = function (callBack) {
         var _this = this;
@@ -4181,7 +4203,7 @@ module.exports = "/* .berkeley-header {height: 210px;background: #FFA100;border-
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<div style=\"height: 100%;overflow: auto;overflow-x: hidden;\" (scroll)=\"searchMore($event)\">\n    <div class=\"berkeley-header\">\n        <img src=\"./assets/images/berkeley/groups-banner-new.png\" alt=\"\">\n    </div>\n    <div class=\"search-box\">\n        <!-- <input type=\"text\"> -->\n        <button routerLink=\"/search-interest\">Search for Interest Groups </button>\n        <img class=\"search-icon\" src=\"./assets/images/berkeley/search@2x.png\" alt=\"\">\n    </div>\n    <div class=\"title\">Popular Group Chats for {{schoolService.userSchool ? schoolService.userSchool.name : ''}}</div>\n    <div class=\"create-box\" style=\"z-index: 99999;\">\n        <div class=\"button\" routerLink=\"/create-interest-group\">\n            <img class=\"icon\" src=\"./assets/images/berkeley/group@3x.png\" alt=\"\">\n            Create Interest Group\n            <img class=\"navigate\" src=\"./assets/images/berkeley/right.png\" alt=\"\">\n        </div>\n    </div>\n    <div class=\"group-box\">\n        <ul class=\"group-content\" *ngIf=\"groups && groups.length != 0\">\n            <!-- card -->\n            <li class=\"group-card\" *ngFor=\"let group of groups; let idx = index\" (click)=\"showGroupDetail(group)\">\n                <div class=\"li\">\n                    <div class=\"group-name\">\n                        {{group ? group.name : '--'}}\n                    </div>\n                    <div class=\"group-count\">\n                        <img src=\"./assets/images/berkeley/Droup-1@2x.png\" alt=\"\"> {{group.loopGroup ? (group.loopGroup.membersNum || 0) : 0}}\n                    </div>\n                    <div class=\"group-descript\" style=\"-webkit-line-clamp: 2;-webkit-box-orient: vertical;margin-top: 16px;\">\n                        {{group ? group.notice : '--'}}\n                    </div>\n                </div>\n                <!-- <div class=\"zan\">\n                    <span style=\"float: right;\">\n                        <app-like [id]=\"'interestsGroupList' + idx\" [group]=\"group\" [class]=\"\" (loved)=\"loved($event, group)\"></app-like>\n                    </span>\n                    <div style=\"float: right;px;margin-right: -11px;\">{{group.likeNum}}</div>\n                </div> -->\n                <div class=\"zan\" style=\"top: 19px;right: 15px;\">\n                    <img src=\"./assets/images/berkeley/join-group.png\" alt=\"\" style=\"width: 17px;\">\n                </div>\n                <div class=\"zan\" style=\"right: 38px;top: 7px;\">\n                    <span style=\"float: right;\">\n                        <app-like [id]=\"'interestsGroupList' + idx\" [group]=\"group\" [class]=\"\" (loved)=\"loved($event, group)\">\n                        </app-like>\n                    </span>\n                    <span style=\"font-weight: bold;float: right;line-height: 46px;margin-right: -11px;\">{{group.likeNum ? (group.likeNum | likeNumPipe) : 0}}</span>\n                </div>\n            </li>\n        </ul>\n\n        <div class=\"empty\" *ngIf=\"groups && groups.length == 0\">\n            <img src=\"./assets/images/berkeley/Class-0@2x.png\" />\n            <div class=\"description\" style=\"position: relative;top: -60px;\">\n                <p>\n                    No interest groups were found. You can add an interest group.\n                </p>\n            </div>\n        </div>\n        <app-loading *ngIf=\"!groups\"></app-loading>\n    </div>\n    <!-- <div class=\"mask\">\n        <div class=\"confirm-card\">\n            <div class=\"confirm-header\">\n                <img src=\"./assets/images/berkeley/delete@2x.png\" alt=\"\">\n            </div>\n            <div class=\"confirm-title\">Confirm Deletion</div>\n            <div class=\"confirm-content\">Are you sure to remove the group chat from the list ?</div>\n            <div class=\"confirm-groups\">\n                <button class=\"confirm\">Yes</button>\n                <button class=\"cancel\">No</button>\n            </div>\n        </div>\n    </div> -->\n</div>\n<app-select-school *ngIf=\"!this.cache.userInfo.schoolId\"></app-select-school>"
+module.exports = "<div style=\"height: 100%;overflow: auto;overflow-x: hidden;\" (scroll)=\"searchMore($event)\" *ngIf=\"!this.cache.chooseSchool\">\n    <div class=\"berkeley-header\" >\n        <img src=\"./assets/images/berkeley/groups-banner-new.png\" alt=\"\">\n    </div>\n    <div class=\"search-box\">\n        <!-- <input type=\"text\"> -->\n        <button routerLink=\"/search-interest\">Search for Interest Groups </button>\n        <img class=\"search-icon\" src=\"./assets/images/berkeley/search@2x.png\" alt=\"\">\n    </div>\n    <div class=\"title\">Popular Group Chats for {{schoolService.userSchool ? schoolService.userSchool.name : ''}}</div>\n    <div class=\"create-box\" style=\"z-index: 99999;\">\n        <div class=\"button\" routerLink=\"/create-interest-group\">\n            <img class=\"icon\" src=\"./assets/images/berkeley/group@3x.png\" alt=\"\">\n            Create Interest Group\n            <img class=\"navigate\" src=\"./assets/images/berkeley/right.png\" alt=\"\">\n        </div>\n    </div>\n    <div class=\"group-box\">\n        <ul class=\"group-content\" *ngIf=\"groups && groups.length != 0\">\n            <!-- card -->\n            <li class=\"group-card\" *ngFor=\"let group of groups; let idx = index\" (click)=\"showGroupDetail(group)\">\n                <div class=\"li\">\n                    <div class=\"group-name\">\n                        {{group ? group.name : '--'}}\n                    </div>\n                    <div class=\"group-count\">\n                        <img src=\"./assets/images/berkeley/Droup-1@2x.png\" alt=\"\"> {{group.loopGroup ? (group.loopGroup.membersNum || 0) : 0}}\n                    </div>\n                    <div class=\"group-descript\" style=\"-webkit-line-clamp: 2;-webkit-box-orient: vertical;margin-top: 16px;\">\n                        {{group ? group.notice : '--'}}\n                    </div>\n                </div>\n                <!-- <div class=\"zan\">\n                    <span style=\"float: right;\">\n                        <app-like [id]=\"'interestsGroupList' + idx\" [group]=\"group\" [class]=\"\" (loved)=\"loved($event, group)\"></app-like>\n                    </span>\n                    <div style=\"float: right;px;margin-right: -11px;\">{{group.likeNum}}</div>\n                </div> -->\n                <div class=\"zan\" style=\"top: 19px;right: 15px;\">\n                    <img src=\"./assets/images/berkeley/join-group.png\" alt=\"\" style=\"width: 17px;\">\n                </div>\n                <div class=\"zan\" style=\"right: 38px;top: 7px;\">\n                    <span style=\"float: right;\">\n                        <app-like [id]=\"'interestsGroupList' + idx\" [group]=\"group\" [class]=\"\" (loved)=\"loved($event, group)\">\n                        </app-like>\n                    </span>\n                    <span style=\"font-weight: bold;float: right;line-height: 46px;margin-right: -11px;\">{{group.likeNum ? (group.likeNum | likeNumPipe) : 0}}</span>\n                </div>\n            </li>\n        </ul>\n\n        <div class=\"empty\" *ngIf=\"groups && groups.length == 0\">\n            <img src=\"./assets/images/berkeley/Class-0@2x.png\" />\n            <div class=\"description\" style=\"position: relative;top: -60px;\">\n                <p>\n                    No interest groups were found. You can add an interest group.\n                </p>\n            </div>\n        </div>\n        <app-loading *ngIf=\"!groups\"></app-loading>\n    </div>\n    <!-- <div class=\"mask\">\n        <div class=\"confirm-card\">\n            <div class=\"confirm-header\">\n                <img src=\"./assets/images/berkeley/delete@2x.png\" alt=\"\">\n            </div>\n            <div class=\"confirm-title\">Confirm Deletion</div>\n            <div class=\"confirm-content\">Are you sure to remove the group chat from the list ?</div>\n            <div class=\"confirm-groups\">\n                <button class=\"confirm\">Yes</button>\n                <button class=\"cancel\">No</button>\n            </div>\n        </div>\n    </div> -->\n</div>\n<app-select-school *ngIf=\"this.cache.chooseSchool\"></app-select-school>"
 
 /***/ }),
 
@@ -4220,7 +4242,6 @@ var __metadata = (undefined && undefined.__metadata) || function (k, v) {
 
 var InterestsGroupsComponent = /** @class */ (function () {
     function InterestsGroupsComponent(schoolService, classService, auth, cache, router, interestListService) {
-        var _this = this;
         this.schoolService = schoolService;
         this.classService = classService;
         this.auth = auth;
@@ -4231,12 +4252,31 @@ var InterestsGroupsComponent = /** @class */ (function () {
         this.loading = false;
         this.page = 1;
         this.interestListService.cacheInterestGroups = [];
-        interestListService.getInterestList(this.page, this.cache.userInfo.schoolId, function (datas) {
+        this.getInterestList();
+    }
+    InterestsGroupsComponent.prototype.getInterestList = function () {
+        var _this = this;
+        if (!this.cache.userInfo.schoolId) {
+            setTimeout(function () {
+                _this.getInterestList();
+            }, 100);
+            return;
+        }
+        this.interestListService.getInterestList(this.page, this.cache.userInfo.schoolId, function (datas) {
             _this.groups = datas;
         });
-    }
+    };
     InterestsGroupsComponent.prototype.ngOnInit = function () {
+        this.getSchoolInfo();
+    };
+    InterestsGroupsComponent.prototype.getSchoolInfo = function () {
         var _this = this;
+        if (!this.cache.userInfo.schoolId) {
+            setTimeout(function () {
+                _this.getSchoolInfo();
+            }, 100);
+            return;
+        }
         this.auth.sendGet('school/get?id=' + this.cache.userInfo.schoolId).subscribe(function (resp) {
             if (resp && resp.hasOwnProperty('status') && resp.status == 200) {
                 var _body = resp.body;
@@ -4744,7 +4784,7 @@ module.exports = "ul li {display: inline-block;width: calc(100%/2);}\n.berkeley-
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"berkeley-main\" [ngClass]=\"{'lhp' : lhp}\">\n    <div class=\"berkeley-content\" [ngClass]=\"{'lhp' : lhp}\">\n        <router-outlet *ngIf=\"cache.userInfo\"></router-outlet>\n    </div>\n    <div class=\"berkeley-menu\" [ngClass]=\"{'lhp' : lhp}\">\n        <ul>\n            <!-- <li>\n                <button (click)=\"navigateTo('home')\" [ngClass]=\"{'active': navigate == 'home'}\">\n                    <img [ngClass]=\"{'hidden' : navigate == 'home'}\" style=\"width: 23px;position: relative;top: 2px;\" src=\"./assets/images/berkeley/Class@2x.png\">\n                    <img [ngClass]=\"{'hidden' : navigate != 'home'}\" style=\"width: 23px;position: relative;top: 2px;\" src=\"./assets/images/berkeley/Class2@2x.png\">\n                    <br/>\n                    <span>Class Groups</span>\n                </button>\n            </li> -->\n            <li>\n                <button (click)=\"navigateTo('interests')\" [ngClass]=\"{'active': navigate == 'interests'}\">\n                    <img [ngClass]=\"{'hidden' : navigate == 'interests'}\" style=\"width: 24px;position: relative;top: 2px;\" src=\"./assets/images/berkeley/Interest1@2x.png\">\n                    <img [ngClass]=\"{'hidden' : navigate != 'interests'}\" style=\"width: 24px;position: relative;top: 2px;\" src=\"./assets/images/berkeley/Interest2@2x.png\">\n                    <!-- <br/>\n                    <span>Interests Groups</span> -->\n                </button>\n            </li>\n            <li>\n                <button (click)=\"navigateTo('settings')\" [ngClass]=\"{'active': navigate == 'settings'}\">\n                    <img [ngClass]=\"{'hidden' : navigate == 'settings'}\" style=\"width: 23px;position: relative;top: 2px;\" src=\"./assets/images/berkeley/my@2x.png\">\n                    <img [ngClass]=\"{'hidden' : navigate != 'settings'}\" style=\"width: 23px;position: relative;top: 2px;\" src=\"./assets/images/berkeley/my2@2x.png\">\n                    <!-- <br/>\n                    <span>My Settings</span> -->\n                </button>\n            </li>\n        </ul>\n    </div>\n</div>\n<div class=\"mask\" *ngIf=\"showConfirm\">\n    <div class=\"confirm-card\">\n        <div class=\"confirm-header\">\n            <img src=\"./assets/images/berkeley/error-info.png\" alt=\"\">\n        </div>\n        <!-- <div class=\"confirm-title\">Confirm Deletion</div> -->\n        <div class=\"confirm-content\">You have to select your school first!</div>\n        <div class=\"confirm-groups\">\n            <button class=\"confirm\" (click)=\"showConfirm = false\">Yes</button>\n        </div>\n    </div>\n</div>"
+module.exports = "<div class=\"berkeley-main\" [ngClass]=\"{'lhp' : lhp}\">\n    <div class=\"berkeley-content\" [ngClass]=\"{'lhp' : lhp}\">\n        <router-outlet ></router-outlet>\n    </div>\n    <div class=\"berkeley-menu\" [ngClass]=\"{'lhp' : lhp}\">\n        <ul>\n            <!-- <li>\n                <button (click)=\"navigateTo('home')\" [ngClass]=\"{'active': navigate == 'home'}\">\n                    <img [ngClass]=\"{'hidden' : navigate == 'home'}\" style=\"width: 23px;position: relative;top: 2px;\" src=\"./assets/images/berkeley/Class@2x.png\">\n                    <img [ngClass]=\"{'hidden' : navigate != 'home'}\" style=\"width: 23px;position: relative;top: 2px;\" src=\"./assets/images/berkeley/Class2@2x.png\">\n                    <br/>\n                    <span>Class Groups</span>\n                </button>\n            </li> -->\n            <li>\n                <button (click)=\"navigateTo('interests')\" [ngClass]=\"{'active': navigate == 'interests'}\">\n                    <img [ngClass]=\"{'hidden' : navigate == 'interests'}\" style=\"width: 24px;position: relative;top: 2px;\" src=\"./assets/images/berkeley/Interest1@2x.png\">\n                    <img [ngClass]=\"{'hidden' : navigate != 'interests'}\" style=\"width: 24px;position: relative;top: 2px;\" src=\"./assets/images/berkeley/Interest2@2x.png\">\n                    <!-- <br/>\n                    <span>Interests Groups</span> -->\n                </button>\n            </li>\n            <li>\n                <button (click)=\"navigateTo('settings')\" [ngClass]=\"{'active': navigate == 'settings'}\">\n                    <img [ngClass]=\"{'hidden' : navigate == 'settings'}\" style=\"width: 23px;position: relative;top: 2px;\" src=\"./assets/images/berkeley/my@2x.png\">\n                    <img [ngClass]=\"{'hidden' : navigate != 'settings'}\" style=\"width: 23px;position: relative;top: 2px;\" src=\"./assets/images/berkeley/my2@2x.png\">\n                    <!-- <br/>\n                    <span>My Settings</span> -->\n                </button>\n            </li>\n        </ul>\n    </div>\n</div>\n<div class=\"mask\" *ngIf=\"showConfirm\">\n    <div class=\"confirm-card\">\n        <div class=\"confirm-header\">\n            <img src=\"./assets/images/berkeley/error-info.png\" alt=\"\">\n        </div>\n        <!-- <div class=\"confirm-title\">Confirm Deletion</div> -->\n        <div class=\"confirm-content\">You have to select your school first!</div>\n        <div class=\"confirm-groups\">\n            <button class=\"confirm\" (click)=\"showConfirm = false\">Yes</button>\n        </div>\n    </div>\n</div>"
 
 /***/ }),
 
@@ -4837,7 +4877,7 @@ module.exports = ".berkeley-header {background: #000000;border-radius: 0 0 20px 
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<div style=\"height: 100%;overflow: auto;overflow-x: hidden;\">\n    <div class=\"user-card\">\n        <div class=\"avatar\">\n            <img [src]=\"userInfo ? userInfo.pic : './assets/images/demo/timg.png'\" alt=\"\">\n        </div>\n        <div style=\"padding-top: 28px;padding-left: 114px;\">\n            <div class=\"header-nick\">{{userInfo ? userInfo.name : '--'}}</div>\n            <div class=\"header-bio\" style=\"-webkit-line-clamp: 2;-webkit-box-orient: vertical;margin-top: 3px;\" [innerHTML]=\"userInfo ? (userInfo.bio ? userInfo.bio : 'No bio set...') : '--'\"></div>\n        </div>\n    </div>\n    <div class=\"school-box\" style=\"padding-top: 4px;\">\n        <div class=\"group-header\">\n            My School\n        </div>\n        <div class=\"group-card\" routerLink=\"/my-school\">\n            <div style=\"width: 30px;position: absolute;top: 50%;transform: translateY(-50%);left: 15px;height: 30px;\">\n                <img [src]=\"schoolService.userSchool.schoolImage ? schoolService.userSchool.schoolImage : ''\" style=\"width: 100%;-o-object-fit: cover;object-fit: cover;height: 100%;border-radius: 50%;\" alt=\"\">\n            </div>\n            {{schoolService.userSchool ? schoolService.userSchool.name.slice(0,1).toUpperCase() + schoolService.userSchool.name.slice(1) : ''}}\n            <img src=\"./assets/images/berkeley/right.png\" alt=\"\" style=\"width: 8px;position: absolute;top: 50%;transform: translateY(-50%);right: 20px;\">\n        </div>\n    </div>\n    <!-- <div class=\"berkeley-header\">\n        <div class=\"header-avatar\">\n            <div class=\"avatar\">\n                <img [src]=\"userInfo ? userInfo.pic : './assets/images/demo/timg.png'\" alt=\"\">\n            </div>\n        </div>\n        <div class=\"header-nick\">\n            {{userInfo ? userInfo.name : '--'}}\n        </div>\n        <div class=\"header-bio\" style=\"-webkit-line-clamp: 2;-webkit-box-orient: vertical;\" [innerHTML]=\"userInfo ? (userInfo.bio ? userInfo.bio : 'No bio set...') : '--'\">\n        </div>\n    </div> -->\n    <!-- <div class=\"create-box\">\n        <button (click)=\"createCourseGroup()\">\n            <i class=\"bicon icon-plus\"></i>Add Class Groups\n        </button>\n    </div> -->\n    <div class=\"group-box\">\n        <div class=\"group-header\" *ngIf=\"groups && groups.length != 0\">\n            <!-- <img src=\"./assets/images/berkeley/My Groups@2x.png\" class=\"img-group\" alt=\"\">-->My Groups\n        </div>\n        <ul class=\"group-content\" *ngIf=\"groups && groups.length != 0\">\n            <!-- card -->\n            <li class=\"group-card\" *ngFor=\"let group of groups;\">\n                <div class=\"group-name\">\n                    {{group.name}}\n\n                </div>\n                <span class=\"tag\">{{group.type == 'class' ? 'Class Group' : 'Interest Group'}}</span>\n                <div class=\"group-descript\" style=\"-webkit-line-clamp: 2;-webkit-box-orient: vertical;margin-top: 7px;\">\n                    {{group.notice}}\n                </div>\n                <div class=\"group-footer\">\n                    <div class=\"left\">\n                        <img src=\"./assets/images/berkeley/zan4@3x.png\" alt=\"\">{{(group.likeNum | likeNumPipe) || 0}}\n                    </div>\n                    <div class=\"right\">\n                        <button class=\"edit\" (click)=\"edit(group)\">\n                            <img src=\"./assets/images/berkeley/edit2.png\" alt=\"\">\n                        </button>\n                        <button class=\"delete\" (click)=\"deleteBefore(group)\">\n                            <img src=\"./assets/images/berkeley/delete2.png\" alt=\"\" style=\"width: 20px;\">\n                        </button>\n                    </div>\n                </div>\n            </li>\n        </ul>\n\n        <div class=\"empty\" *ngIf=\"groups && groups.length == 0\">\n            <img src=\"./assets/images/berkeley/Class-0@2x.png\" />\n            <div class=\"description\" style=\"position: relative;top: -60px;\">\n                <p>\n                    You have not added any groups. If you can’t find your class groups or interest groups, feel free to add one.\n                </p>\n            </div>\n        </div>\n\n        <app-loading *ngIf=\"!groups\"></app-loading>\n    </div>\n    <div class=\"mask\" *ngIf=\"confirmDelete\">\n        <div class=\"confirm-card\">\n            <div class=\"confirm-header\">\n                <img src=\"./assets/images/berkeley/delete@2x.png\" alt=\"\">\n            </div>\n            <div class=\"confirm-title\">Confirm Deletion</div>\n            <div class=\"confirm-content\">Are you sure to remove the group chat from the list ?</div>\n            <div class=\"confirm-groups\">\n                <button class=\"confirm\" (click)=\"delete()\">Yes</button>\n                <button class=\"cancel\" (click)=\"confirmDelete = false\">No</button>\n            </div>\n        </div>\n    </div>\n\n    <div class=\"mask\" *ngIf=\"commitStatus == 'success'\">\n        <div class=\"confirm-card\" style=\"width: auto;\">\n            <div class=\"confirm-header\">\n                <img src=\"./assets/images/berkeley/successful@2x.png\" alt=\"\" style=\"width: 30px;\">\n            </div>\n            <div class=\"confirm-title\" style=\"margin-top: 3px;color: #030303;font-size: 13px;\">Success</div>\n        </div>\n    </div>\n</div>"
+module.exports = "<div style=\"height: 100%;overflow: auto;overflow-x: hidden;\">\n    <div class=\"user-card\">\n        <div class=\"avatar\">\n            <img [src]=\"userInfo ? userInfo.pic : './assets/images/demo/timg.png'\" alt=\"\">\n        </div>\n        <div style=\"padding-top: 28px;padding-left: 114px;\">\n            <div class=\"header-nick\">{{userInfo ? userInfo.name : '--'}}</div>\n            <div class=\"header-bio\" style=\"-webkit-line-clamp: 2;-webkit-box-orient: vertical;margin-top: 3px;\" [innerHTML]=\"userInfo ? (userInfo.bio ? userInfo.bio : 'No bio set...') : '--'\"></div>\n        </div>\n    </div>\n    <div class=\"school-box\" style=\"padding-top: 4px;\">\n        <div class=\"group-header\">\n            My School\n        </div>\n        <!-- routerLink=\"/my-school\" -->\n        <div class=\"group-card\">\n            <div style=\"width: 30px;position: absolute;top: 50%;transform: translateY(-50%);left: 15px;height: 30px;\">\n                <img [src]=\"schoolService.userSchool.schoolImage ? schoolService.userSchool.schoolImage : ''\" style=\"width: 100%;-o-object-fit: cover;object-fit: cover;height: 100%;border-radius: 50%;\"\n                    alt=\"\">\n            </div>\n            {{schoolService.userSchool ? schoolService.userSchool.name.slice(0,1).toUpperCase() + schoolService.userSchool.name.slice(1)\n            : ''}}\n            <!-- <img src=\"./assets/images/berkeley/right.png\" alt=\"\" style=\"width: 8px;position: absolute;top: 50%;transform: translateY(-50%);right: 20px;\"> -->\n        </div>\n    </div>\n    <!-- <div class=\"berkeley-header\">\n        <div class=\"header-avatar\">\n            <div class=\"avatar\">\n                <img [src]=\"userInfo ? userInfo.pic : './assets/images/demo/timg.png'\" alt=\"\">\n            </div>\n        </div>\n        <div class=\"header-nick\">\n            {{userInfo ? userInfo.name : '--'}}\n        </div>\n        <div class=\"header-bio\" style=\"-webkit-line-clamp: 2;-webkit-box-orient: vertical;\" [innerHTML]=\"userInfo ? (userInfo.bio ? userInfo.bio : 'No bio set...') : '--'\">\n        </div>\n    </div> -->\n    <!-- <div class=\"create-box\">\n        <button (click)=\"createCourseGroup()\">\n            <i class=\"bicon icon-plus\"></i>Add Class Groups\n        </button>\n    </div> -->\n    <div class=\"group-box\">\n        <div class=\"group-header\" *ngIf=\"groups && groups.length != 0\">\n            <!-- <img src=\"./assets/images/berkeley/My Groups@2x.png\" class=\"img-group\" alt=\"\">-->My Groups\n        </div>\n        <ul class=\"group-content\" *ngIf=\"groups && groups.length != 0\">\n            <!-- card -->\n            <li class=\"group-card\" *ngFor=\"let group of groups;\">\n                <div class=\"group-name\">\n                    {{group.name}}\n\n                </div>\n                <span class=\"tag\">{{group.type == 'class' ? 'Class Group' : 'Interest Group'}}</span>\n                <div class=\"group-descript\" style=\"-webkit-line-clamp: 2;-webkit-box-orient: vertical;margin-top: 7px;\">\n                    {{group.notice}}\n                </div>\n                <div class=\"group-footer\">\n                    <div class=\"left\">\n                        <img src=\"./assets/images/berkeley/zan4@3x.png\" alt=\"\">{{(group.likeNum | likeNumPipe) || 0}}\n                    </div>\n                    <div class=\"right\">\n                        <button class=\"edit\" (click)=\"edit(group)\">\n                            <img src=\"./assets/images/berkeley/edit2.png\" alt=\"\">\n                        </button>\n                        <button class=\"delete\" (click)=\"deleteBefore(group)\">\n                            <img src=\"./assets/images/berkeley/delete2.png\" alt=\"\" style=\"width: 20px;\">\n                        </button>\n                    </div>\n                </div>\n            </li>\n        </ul>\n\n        <div class=\"empty\" *ngIf=\"groups && groups.length == 0\">\n            <img src=\"./assets/images/berkeley/Class-0@2x.png\" />\n            <div class=\"description\" style=\"position: relative;top: -60px;\">\n                <p>\n                    You have not added any groups. If you can’t find your class groups or interest groups, feel free to add one.\n                </p>\n            </div>\n        </div>\n\n        <app-loading *ngIf=\"!groups\"></app-loading>\n    </div>\n    <div class=\"mask\" *ngIf=\"confirmDelete\">\n        <div class=\"confirm-card\">\n            <div class=\"confirm-header\">\n                <img src=\"./assets/images/berkeley/delete@2x.png\" alt=\"\">\n            </div>\n            <div class=\"confirm-title\">Confirm Deletion</div>\n            <div class=\"confirm-content\">Are you sure to remove the group chat from the list ?</div>\n            <div class=\"confirm-groups\">\n                <button class=\"confirm\" (click)=\"delete()\">Yes</button>\n                <button class=\"cancel\" (click)=\"confirmDelete = false\">No</button>\n            </div>\n        </div>\n    </div>\n\n    <div class=\"mask\" *ngIf=\"commitStatus == 'success'\">\n        <div class=\"confirm-card\" style=\"width: auto;\">\n            <div class=\"confirm-header\">\n                <img src=\"./assets/images/berkeley/successful@2x.png\" alt=\"\" style=\"width: 30px;\">\n            </div>\n            <div class=\"confirm-title\" style=\"margin-top: 3px;color: #030303;font-size: 13px;\">Success</div>\n        </div>\n    </div>\n</div>"
 
 /***/ }),
 
@@ -5039,6 +5079,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _service_cache_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../service/cache.service */ "./src/app/service/cache.service.ts");
 /* harmony import */ var _service_school_service__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../service/school.service */ "./src/app/service/school.service.ts");
 /* harmony import */ var _angular_platform_browser__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @angular/platform-browser */ "./node_modules/@angular/platform-browser/fesm5/platform-browser.js");
+/* harmony import */ var _angular_router__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @angular/router */ "./node_modules/@angular/router/fesm5/router.js");
 var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -5053,11 +5094,13 @@ var __metadata = (undefined && undefined.__metadata) || function (k, v) {
 
 
 
+
 var MySchoolComponent = /** @class */ (function () {
-    function MySchoolComponent(auth, cache, schoolService, title) {
+    function MySchoolComponent(auth, cache, schoolService, router, title) {
         this.auth = auth;
         this.cache = cache;
         this.schoolService = schoolService;
+        this.router = router;
         this.title = title;
         this.currentpage = 1;
         this.pageSize = 1000;
@@ -5085,8 +5128,8 @@ var MySchoolComponent = /** @class */ (function () {
                     _this.schoolList = _this.staticSchoolList;
                     for (var _i = 0, _a = _this.schoolList; _i < _a.length; _i++) {
                         var school = _a[_i];
-                        if (school.id == _this.cache.userInfo.schoolId) {
-                            _this.selectedSchool = school;
+                        if (school.id == _this.cache.selectedSchool.id) {
+                            _this.cache.selectedSchool = school;
                             school.isSelected = true;
                         }
                     }
@@ -5095,7 +5138,10 @@ var MySchoolComponent = /** @class */ (function () {
         });
     };
     MySchoolComponent.prototype.selectSchool = function (school) {
-        this.selectedSchool.isSelected = false;
+        if (this.selectedSchool) {
+            this.selectedSchool.isSelected = false;
+        }
+        this.cache.selectedSchool.isSelected = false;
         school.isSelected = true;
         this.selectedSchool = school;
     };
@@ -5116,28 +5162,31 @@ var MySchoolComponent = /** @class */ (function () {
     };
     MySchoolComponent.prototype.submitEdit = function () {
         var _this = this;
+        this.cache.selectedSchool = this.selectedSchool;
+        setTimeout(function () {
+            _this.router.navigateByUrl('search-school');
+        }, 200);
         this.disabled = true;
-        this.auth.sendPut('user', { schoolId: this.selectedSchool.id }).subscribe(function (resp) {
-            _this.disabled = false;
-            if (resp && resp.hasOwnProperty('status') && resp.status == 200) {
-                var _body = resp.body;
-                if (_body.code == 2000) {
-                    _this.schoolService.userSchool = _this.selectedSchool;
-                    _this.cache.userInfo = resp.body.payload;
-                    if (_this.selectedSchool) {
-                        _this.title.setTitle(_this.selectedSchool.name.trim().replace(/^\S/, function (s) { return s.toUpperCase(); }) + ' Groups');
-                    }
-                    _this.commitStatus = 'success';
-                    setTimeout(function () {
-                        _this.commitStatus = 'init';
-                        _this.goBack();
-                    }, 1500);
-                }
-            }
-            else {
-                _this.auth.error('Network timeout, please try again later');
-            }
-        });
+        // this.auth.sendPut('user',{schoolId: this.cache.selectedSchool.id}).subscribe(resp => {
+        //     this.disabled = false;
+        //     if (resp && resp.hasOwnProperty('status') && resp.status == 200) {
+        //         let _body = resp.body;
+        //         if (_body.code == 2000) {
+        //             this.schoolService.userSchool = this.cache.selectedSchool;
+        //             this.cache.userInfo = resp.body.payload;
+        //             if(this.cache.selectedSchool) {
+        //                 this.title.setTitle(this.cache.selectedSchool.name.trim().replace(/^\S/, s => s.toUpperCase()) + ' Groups');
+        //             }
+        //             this.commitStatus = 'success';
+        //             setTimeout(() => {
+        //                 this.commitStatus = 'init';
+        //                 this.goBack();
+        //             }, 1500)
+        //         }
+        //     }else {
+        //         this.auth.error('Network timeout, please try again later')
+        //     }
+        // });
     };
     MySchoolComponent = __decorate([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"])({
@@ -5148,6 +5197,7 @@ var MySchoolComponent = /** @class */ (function () {
         __metadata("design:paramtypes", [_service_auth_service__WEBPACK_IMPORTED_MODULE_1__["AuthService"],
             _service_cache_service__WEBPACK_IMPORTED_MODULE_2__["CacheService"],
             _service_school_service__WEBPACK_IMPORTED_MODULE_3__["SchoolService"],
+            _angular_router__WEBPACK_IMPORTED_MODULE_5__["Router"],
             _angular_platform_browser__WEBPACK_IMPORTED_MODULE_4__["Title"]])
     ], MySchoolComponent);
     return MySchoolComponent;
@@ -5617,7 +5667,7 @@ var SelectGroupComponent = /** @class */ (function () {
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = ".header img {\n    width: 100%;\n}\n.content {\n    padding: 10px 20px;\n}\n.content .title {\n    font-size:18px;\n    font-weight:600;\n    color:#454545;\n    line-height:21px;\n}\n.content .dropdown {\n    margin-top: 12px;\n}\n.content .dropdown button.btn-primary {\n    color: #454545;\n    height: 37px;\n    background: rgba(236,237,238,1);\n    border-radius: 19px;\n    width: 100%;\n    font-size: 16px;\n    font-weight: 500;\n    text-align: left;\n    padding: 0 15px;\n    position: relative;\n}\n.content .dropdown button.btn-primary img {\n    position: absolute;\n    right: 13px;\n    width: 13px;\n    top: 16px;\n}\n.content .dropdown .dropdown-menu {\n    width: 100%;\n    background: #ffffff;\n    box-shadow: 0px 2px 10px 0px #cccccc66;\n    border-radius: 19px;\n    margin-top: 9px;\n    max-height: 180px;\n    overflow: overlay;\n    display: none;\n    min-height: 120px;\n}\n.content .dropdown.open .dropdown-menu {\n    display: block;\n}\n.content .dropdown .dropdown-menu li {\n    padding: 0 20px;\n    height: 60px;\n    line-height: 60px;\n    font-size: 15px;\n}\n/* .content .dropdown .dropdown-menu li:hover {\n    background: #f1f1f1;\n} */\n.content .dropdown .dropdown-menu li button{\n    width: 100%;\n    height: 100%;\n    border-bottom: 1px solid #F3F3F3;\n    text-align: left;\n}\n.content .dropdown .dropdown-menu li:last-child button{\n    border-bottom: 0px;\n}\n.content .dropdown .dropdown-menu li a{\n    color: #454545;\n}\n.content .dropdown .dropdown-menu li .input {position: relative;}\n.content .dropdown .dropdown-menu li .input input {\n    height: 37px;\n    background: #ffffff;\n    border-radius: 19px;\n    border: 0;\n    width: 100%;\n    padding: 16px;\n    font-size: 15px;\n    font-weight: 500;\n    color: #000000;\n    border: 1px solid rgba(239,239,239,1);\n}\n.content .dropdown .dropdown-menu li .input input::-webkit-input-placeholder {\n    color: rgba(215,215,215,1);\n    font-size: 13px;\n    font-weight: 400;\n}\n.content .dropdown .dropdown-menu li .input input::-moz-placeholder {\n    color: rgba(215,215,215,1);\n    font-size: 13px;\n    font-weight: 400;\n}\n.content .dropdown .dropdown-menu li .input input::-ms-input-placeholder {\n    color: rgba(215,215,215,1);\n    font-size: 13px;\n    font-weight: 400;\n}\n.content .dropdown .dropdown-menu li .input input::placeholder {\n    color: rgba(215,215,215,1);\n    font-size: 13px;\n    font-weight: 400;\n}\n.content .dropdown .dropdown-menu li .input button {\n    position: absolute;\n    top: 21px;\n    left: 15px;\n    border: 0;\n    color: #D7D7D7;\n    width: auto;\n    height: auto;\n}\n.confirm-button {\n    color: #ffffff;\n    background: #F5A623;\nbox-shadow: 3px 4px 8px 0px rgba(245, 166, 35, 0.7);\n    font-size: 16px;\n    font-weight: bold;\n    line-height: 19px;\n    padding: 13px 53px 12px 47px;\n    border-radius: 22px;\n}\n.confirm-button:disabled {\n    opacity: 0.5;;\n}"
+module.exports = ".header img {\n    width: 100%;\n}\n.content {\n    padding: 10px 20px;\n}\n.content .title {\n    font-size:18px;\n    font-weight:600;\n    color:#454545;\n    line-height:21px;\n}\n.content .dropdown {\n    margin-top: 12px;\n}\n.content .dropdown button.btn-primary {\n    color: #454545;\n    height: 37px;\n    background: rgba(236,237,238,1);\n    border-radius: 19px;\n    width: 100%;\n    font-size: 16px;\n    font-weight: 500;\n    text-align: left;\n    padding: 0 15px;\n    padding-right: 30px;\n    position: relative;\n    overflow: hidden;\n    text-overflow: ellipsis;\n    white-space: nowrap;\n}\n.content .dropdown button.btn-primary img {\n    position: absolute;\n    right: 13px;\n    width: 13px;\n    top: 9px;\n}\n.content .dropdown .dropdown-menu {\n    width: 100%;\n    background: #ffffff;\n    box-shadow: 0px 2px 10px 0px #cccccc66;\n    border-radius: 19px;\n    margin-top: 9px;\n    max-height: 180px;\n    overflow: overlay;\n    display: none;\n    min-height: 120px;\n}\n.content .dropdown.open .dropdown-menu {\n    display: block;\n}\n.content .dropdown .dropdown-menu li {\n    padding: 0 20px;\n    height: 60px;\n    line-height: 60px;\n    font-size: 15px;\n}\n/* .content .dropdown .dropdown-menu li:hover {\n    background: #f1f1f1;\n} */\n.content .dropdown .dropdown-menu li button{\n    width: 100%;\n    height: 100%;\n    border-bottom: 1px solid #F3F3F3;\n    text-align: left;\n}\n.content .dropdown .dropdown-menu li:last-child button{\n    border-bottom: 0px;\n}\n.content .dropdown .dropdown-menu li a{\n    color: #454545;\n}\n.content .dropdown .dropdown-menu li .input {position: relative;}\n.content .dropdown .dropdown-menu li .input input {\n    height: 37px;\n    background: #ffffff;\n    border-radius: 19px;\n    border: 0;\n    width: 100%;\n    padding: 16px;\n    font-size: 15px;\n    font-weight: 500;\n    color: #000000;\n    border: 1px solid rgba(239,239,239,1);\n}\n.content .dropdown .dropdown-menu li .input input::-webkit-input-placeholder {\n    color: rgba(215,215,215,1);\n    font-size: 13px;\n    font-weight: 400;\n}\n.content .dropdown .dropdown-menu li .input input::-moz-placeholder {\n    color: rgba(215,215,215,1);\n    font-size: 13px;\n    font-weight: 400;\n}\n.content .dropdown .dropdown-menu li .input input::-ms-input-placeholder {\n    color: rgba(215,215,215,1);\n    font-size: 13px;\n    font-weight: 400;\n}\n.content .dropdown .dropdown-menu li .input input::placeholder {\n    color: rgba(215,215,215,1);\n    font-size: 13px;\n    font-weight: 400;\n}\n.content .dropdown .dropdown-menu li .input button {\n    position: absolute;\n    top: 21px;\n    left: 15px;\n    border: 0;\n    color: #D7D7D7;\n    width: auto;\n    height: auto;\n}\n.confirm-button {\n    color: #ffffff;\n    background: #F5A623;\nbox-shadow: 3px 4px 8px 0px rgba(245, 166, 35, 0.7);\n    font-size: 16px;\n    font-weight: bold;\n    line-height: 19px;\n    padding: 13px 53px 12px 47px;\n    border-radius: 22px;\n}\n.confirm-button:disabled {\n    opacity: 0.5;;\n}\ndiv.email {\n    height: 37px;\n    background: #ECEDEE;\n    border-radius: 19px;\n    margin-top: 15px;\n}\ndiv.email input {\n    float: left;\n    width: calc(100% - 132px);\n    height: 37px;\n    background: none;\n    border: 0;\n    padding-left: 15px;\n    font-size:16px;\n    color: #454545;\n    font-weight: 500;\n}\ndiv.email div.email-text {\n    float: left;\n    width: 132px;\n    height: 37px;\n    line-height: 37px;\n    padding-left: 5px;\n    font-size: 14px;\n    color: #454545;\n    font-weight:500;\n    position: relative;\n}\ndiv.email div.email-text::before {\n    content: \"\";\n    width: 2px;\n    height: 15px;\n    background: #CCCCCC;\n    position: absolute;\n    left: 0;\n    top: 11px;\n}\n.email-code {\n    margin-top: 15px;\n}\n.email-code input {\n    float: left;\n    width: calc(100% - 107px);\n    height: 37px;\n    border: 0;\n    padding-left: 15px;\n    font-size:16px;\n    color: #454545;\n    font-weight: 500;\n    background: #ECEDEE;\n    border-radius: 19px;\n}\n.email-code button {\n    height: 37px;\n    font-size: 14px;\n    font-weight: bold;\n    color: #F5A623;\n    margin-left: 12px;\n}\n.email-code button:disabled{\n    color: #F5A623;\n    opacity: 0.5;\n}\n.code-error {\n    font-size: 13px;\n    color: #E21818;\n    font-weight: 400;\n    padding-left: 15px;\n    margin-top: 5px;\n}"
 
 /***/ }),
 
@@ -5628,7 +5678,7 @@ module.exports = ".header img {\n    width: 100%;\n}\n.content {\n    padding: 1
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<div style=\"height: 100%;overflow: auto;overflow-x: hidden;background: #ffffff;\" >\n    <div class=\"header\">\n        <img src=\"./assets/images/berkeley/Home-banner-new@2x.png\" />\n    </div>\n    <div class=\"content\">\n        <div class=\"title\">Select Your School</div>\n        <div class=\"dropdown\" dropdown>\n            <button class=\"btn btn-primary\" dropdown-open>{{selectedSchool ? selectedSchool.name : 'Select Your School'}}\n                <img src=\"./assets/images/berkeley/more.png\" alt=\"\">\n            </button>\n            <ul class=\"dropdown-menu\">\n                <!-- <li dropdown-not-closable-zone style=\"height: 40px;\">\n                    <div class=\"input\">\n                        <form action=\"#\">\n                            <input type=\"search\" [(ngModel)]=\"searchStr\" name=\"search\" (keyup)=\"search($event)\" placeholder=\"Please Enter the School Name\" />\n                        </form>\n                        <button>\n                            <i class=\"bicon icon-search\"></i>\n                        </button>\n                    </div>\n                </li> -->\n                <li *ngFor=\"let school of schoolList\">\n                    <button (click)=\"selectSchool(school)\">{{school.name ? school.name.slice(0,1).toUpperCase() + school.name.slice(1) : ''}}</button>\n                </li>\n            </ul>\n        </div>\n        <div style=\"text-align: center;margin-top: 63px;\">\n            <button class=\"confirm-button\" (click)=\"confirm()\" [disabled]=\"!selectedSchool\">Confirm</button>\n        </div>\n    </div>\n</div>"
+module.exports = "<div style=\"height: 100%;overflow: auto;overflow-x: hidden;background: #ffffff;\">\n    <div class=\"header\">\n        <img src=\"./assets/images/berkeley/Home-banner-new@2x.png\" />\n    </div>\n    <div class=\"content\">\n        <div class=\"title\">Select Your School</div>\n        <div class=\"dropdown\" dropdown>\n            <button class=\"btn btn-primary\" dropdown-open (click)=\"selectSchoolClick()\">{{cache.selectedSchool ? cache.selectedSchool.name : 'Select Your School'}}\n                <img src=\"./assets/images/berkeley/right.png\" alt=\"\">\n            </button>\n            <!-- <ul class=\"dropdown-menu\"> -->\n            <!-- <li dropdown-not-closable-zone style=\"height: 40px;\">\n                    <div class=\"input\">\n                        <form action=\"#\">\n                            <input type=\"search\" [(ngModel)]=\"searchStr\" name=\"search\" (keyup)=\"search($event)\" placeholder=\"Please Enter the School Name\" />\n                        </form>\n                        <button>\n                            <i class=\"bicon icon-search\"></i>\n                        </button>\n                    </div>\n                </li> -->\n            <!-- <li *ngFor=\"let school of schoolList\">\n                    <button (click)=\"selectSchool(school)\">{{school.name ? school.name.slice(0,1).toUpperCase() + school.name.slice(1) : ''}}</button>\n                </li> -->\n            <!-- </ul> -->\n        </div>\n        <div class=\"email\">\n            <input type=\"text\" name=\"schoolEmail\" [(ngModel)]=\"schoolEmail\" placeholder=\"Enter School email\">\n            <div class=\"email-text\">{{cache.selectedSchool ? cache.selectedSchool.email_suffix : '@**.*'}}</div>\n        </div>\n        <div class=\"email-code\">\n            <input type=\"text\" name=\"code\" [(ngModel)]=\"code\" placeholder=\"Enter verification code\">\n            <button [disabled]=\"!canSend || !schoolEmail\" (click)=\"sendCode()\">\n                <span>{{sendText}}</span>\n            </button>\n        </div>\n        <div class=\"code-error\" *ngIf=\"codeError\">Verification code error</div>\n        <div style=\"text-align: center;margin-top: 63px;\">\n            <button class=\"confirm-button\" (click)=\"confirm()\" [disabled]=\"!cache.selectedSchool || !schoolEmail || !code\">Confirm</button>\n        </div>\n    </div>\n</div>"
 
 /***/ }),
 
@@ -5672,7 +5722,11 @@ var SelectSchoolComponent = /** @class */ (function () {
         this.cache = cache;
         this.router = router;
         this.title = title;
-        this.selectedSchool = this.schoolService.userSchool;
+        this.codeError = false;
+        this.canSend = true;
+        this.interval = 0;
+        this.sendText = 'Send';
+        // this.cache.selectedSchool = this.schoolService.userSchool;
         var payload = {
             currentPage: 1,
             pageSize: 1000
@@ -5699,8 +5753,8 @@ var SelectSchoolComponent = /** @class */ (function () {
                             _this.userSchool = school;
                         }
                     }
-                    if (!_this.selectedSchool) {
-                        _this.selectedSchool = _this.schoolService.schoolList[0];
+                    if (!_this.cache.selectedSchool) {
+                        _this.cache.selectedSchool = _this.schoolService.schoolList[0];
                     }
                     _this.cd.detectChanges();
                 }
@@ -5708,7 +5762,7 @@ var SelectSchoolComponent = /** @class */ (function () {
         });
     };
     SelectSchoolComponent.prototype.selectSchool = function (school) {
-        this.selectedSchool = school;
+        this.cache.selectedSchool = school;
         this.cd.detectChanges();
     };
     SelectSchoolComponent.prototype.search = function (event) {
@@ -5738,16 +5792,63 @@ var SelectSchoolComponent = /** @class */ (function () {
     };
     SelectSchoolComponent.prototype.confirm = function () {
         var _this = this;
-        this.auth.sendPut('user', { schoolId: this.selectedSchool.id }).subscribe(function (resp) {
+        var loopUid = sessionStorage.getItem("classRoomUserId");
+        var loopUserName = sessionStorage.getItem("loopUserName");
+        var payload = {
+            loopUid: loopUid,
+            loopUserName: loopUserName,
+            school_id: this.cache.selectedSchool.id,
+            email: this.schoolEmail + this.cache.selectedSchool.email_suffix,
+            code: this.code
+        };
+        this.auth.sendPost('user', payload).subscribe(function (resp) {
             if (resp && resp.hasOwnProperty('status') && resp.status == 200) {
                 var _body = resp.body;
                 if (_body.code == 2000) {
                     _this.cache.userInfo = resp.body.payload;
-                    _this.schoolService.userSchool = _this.selectedSchool;
-                    if (_this.selectedSchool) {
-                        _this.title.setTitle(_this.selectedSchool.name.trim().replace(/^\S/, function (s) { return s.toUpperCase(); }) + ' Groups');
+                    _this.schoolService.userSchool = _this.cache.selectedSchool;
+                    if (_this.cache.selectedSchool) {
+                        _this.title.setTitle(_this.cache.selectedSchool.name.trim().replace(/^\S/, function (s) { return s.toUpperCase(); }) + ' Groups');
                     }
-                    _this.router.navigateByUrl("/search-class");
+                    _this.router.navigateByUrl("/interests-groups");
+                }
+                else {
+                    _this.codeError = true;
+                }
+            }
+        });
+    };
+    SelectSchoolComponent.prototype.selectSchoolClick = function () {
+        this.router.navigateByUrl('my-school');
+    };
+    SelectSchoolComponent.prototype.sendCode = function () {
+        var _this = this;
+        if (!this.schoolEmail) {
+            return;
+        }
+        this.canSend = false;
+        this.auth.sendPost('email/send', { email: this.schoolEmail + this.cache.selectedSchool.email_suffix }).subscribe(function (resp) {
+            if (resp && resp.hasOwnProperty('status') && resp.status == 200) {
+                var _body = resp.body;
+                if (_body.code == 2000) {
+                    _this.canSend = false;
+                    _this.interval = 30;
+                    var _interval_1 = setInterval(function () {
+                        _this.sendText = _interval_1 + 's';
+                        _this.interval--;
+                        if (_this.interval <= 0) {
+                            _this.canSend = true;
+                            _this.sendText = 'Resend';
+                            clearInterval(_interval_1);
+                        }
+                    }, 1000);
+                    setTimeout(function () {
+                        _this.canSend = true;
+                    }, 30000);
+                }
+                else {
+                    _this.canSend = true;
+                    _this.auth.error('Frequent operation, please try again later');
                 }
             }
         });
