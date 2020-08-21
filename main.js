@@ -5839,8 +5839,8 @@ var SelectSchoolComponent = /** @class */ (function () {
                         if (_this.interval <= 0) {
                             _this.canSend = true;
                             _this.sendText = 'Resend';
-                            clearInterval(_interval_1);
                             _this.interval = 0;
+                            clearInterval(_interval_1);
                         }
                     }, 1000);
                     setTimeout(function () {
