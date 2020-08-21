@@ -5834,7 +5834,7 @@ var SelectSchoolComponent = /** @class */ (function () {
                     _this.canSend = false;
                     _this.interval = 30;
                     var _interval_1 = setInterval(function () {
-                        _this.sendText = _interval_1 + 's';
+                        _this.sendText = _this.interval + 's';
                         _this.interval--;
                         if (_this.interval <= 0) {
                             _this.canSend = true;
